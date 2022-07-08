@@ -1,6 +1,6 @@
 import sys
 from typing import Optional
-
+from math import sqrt, pow
 from PySide6.QtCore import *
 from PySide6.QtWidgets import *
 from PySide6.QtGui import *
@@ -60,6 +60,23 @@ class ExampleApp(QMainWindow, Ui_MainWindow):
         self.scene.addItem(v2)
         self.scene.addItem(line)'''
 
+    def cood_recalc(self, left_x, left_y, right_x, right_y):
+        left_x += 10
+        left_y += 10
+        right_x += 10
+        right_y += 10
+
+        length = sqrt((right_x - left_x) ** 2 + (right_y - left_y) ** 2)
+        ratio = (length - 10) / 10
+
+        right_x = (left_x + ratio * right_x) / (1 + ratio)
+        right_y = (left_y + ratio * right_y) / (1 + ratio)
+        ratio = (length - 20) / 10
+        left_x = (right_x + ratio * left_x) / (1 + ratio)
+        left_y = (right_y + ratio * left_y) / (1 + ratio)
+        return [left_x, left_y, right_x, right_y]
+
+
     @Slot(QMouseEvent)
     def on_press(self, event: QMouseEvent):
         point = self.graphicsView.mapToScene(event.pos())
@@ -80,14 +97,14 @@ class ExampleApp(QMainWindow, Ui_MainWindow):
                     print("Eror")
             else:
                 right_vertex = self.scene.itemAt(point.x(), point.y(), QTransform())
-                if isinstance(right_vertex, Vertex):
+                if isinstance(right_vertex, Vertex) and right_vertex != self.left_vertex:
                     self.create_edge(self.left_vertex, right_vertex)
                     self.left_vertex = None
                     print("@")
 
                 pass
             # point = event.
-        print(f"{event.pos()}")
+        # print(f"{event.pos()}")
 
     @Slot(QMouseEvent)
     def on_released(self, event: QMouseEvent):
@@ -100,16 +117,17 @@ class ExampleApp(QMainWindow, Ui_MainWindow):
         self.vertex_list[new_vertex.v_number] = new_vertex
 
     def create_edge(self, left_vertex=None, right_vertex=None):
-        left_x = left_vertex.sceneBoundingRect().x() + 10
-        left_y = left_vertex.sceneBoundingRect().y() + 10
-        right_x = right_vertex.sceneBoundingRect().x() + 10
-        right_y = right_vertex.sceneBoundingRect().y() + 10
 
+        left_x = left_vertex.sceneBoundingRect().x()
+        left_y = left_vertex.sceneBoundingRect().y()
+        right_x = right_vertex.sceneBoundingRect().x()
+        right_y = right_vertex.sceneBoundingRect().y()
         '''k = (abc(right_x - left_x))/(abc(right_y - left_y))
         b = 10
         x = sqtr(b)'''
+        coord_list = self.cood_recalc(left_x, left_y, right_x, right_y)
 
-        new_edge = Edge(left_vertex, right_vertex, left_x, left_y, right_x, right_y)
+        new_edge = Edge(left_vertex, right_vertex, coord_list[0], coord_list[1], coord_list[2], coord_list[3])
 
         self.scene.addItem(new_edge)
         self.vertex_list[new_edge.e_number] = new_edge
@@ -131,6 +149,7 @@ class ExampleApp(QMainWindow, Ui_MainWindow):
         print("3")
 
     def color_the_graph(self):
+
         pass
 
 

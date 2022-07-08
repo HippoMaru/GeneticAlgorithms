@@ -12,8 +12,7 @@ class Vertex(QGraphicsEllipseItem):
         Vertex.count += 1
         self.v_number = int(Vertex.count)
         self.setBrush(QBrush(QColor(255, 255, 255)))
-        self.checked = False
-        self.pressed = False
+        self.m_edge_list = {}
         self.setFlag(QGraphicsItem.ItemIsSelectable, True)
         self.setFlag(QGraphicsItem.ItemIsMovable, True)
 
@@ -24,6 +23,26 @@ class Vertex(QGraphicsEllipseItem):
         print(self.isSelected())
         print(self.pos())
         self.v_point = self
+
+        pen = QPen()
+        self.isActive()
+        if self.isActive():
+            pen.setWidth(1)
+            self.setPen(pen)
+        else:
+            pen.setWidth(1)
+            self.setPen(pen)
+
+    def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent) -> None:
+        super(Vertex, self).mouseMoveEvent(event)
+
+        for edge in self.m_edge_list.values():
+            left_x = edge.m_left_vertex.sceneBoundingRect().x()
+            left_y = edge.m_left_vertex.sceneBoundingRect().y()
+            right_x = edge.m_left_vertex.sceneBoundingRect().x()
+            right_y = edge.m_left_vertex.sceneBoundingRect().x()
+            print(left_x, left_y, right_x, right_y)
+            edge.my_update()
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: Optional[QWidget] = ...) -> None:
         if self.isSelected():
@@ -41,3 +60,6 @@ class Vertex(QGraphicsEllipseItem):
         self.setSelected(not self.isSelected())
         self.pressed = False
         print(self.isSelected())'''
+
+    def set_color(self, brush):
+        pass
