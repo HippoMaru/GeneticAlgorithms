@@ -102,7 +102,16 @@ class ExampleApp(QMainWindow, Ui_MainWindow):
                     self.left_vertex = None
                     print("@")
 
-                pass
+        elif self.del_vertex_btn.isChecked():
+            vertex = self.scene.itemAt(point.x(), point.y(), QTransform())
+            if isinstance(vertex, Vertex):
+                self.delete_vertex(vertex)
+
+        elif self.del_edge_btn.isChecked():
+            edge = self.scene.itemAt(point.x(), point.y(), QTransform())
+            if isinstance(edge, Edge):
+                self.delete_edge(edge)
+
             # point = event.
         # print(f"{event.pos()}")
 
@@ -130,21 +139,35 @@ class ExampleApp(QMainWindow, Ui_MainWindow):
         new_edge = Edge(left_vertex, right_vertex, coord_list[0], coord_list[1], coord_list[2], coord_list[3])
 
         self.scene.addItem(new_edge)
-        self.vertex_list[new_edge.e_number] = new_edge
+        self.edge_list[new_edge.e_number] = new_edge
         print("$")
 
     def delete_vertex(self, vertex):
-        self.scene.removeItem(vertex)
+        print(vertex.m_edge_list)
+
+        for k_edge in vertex.m_edge_list:
+            if vertex.m_edge_list[k_edge].m_left_vertex == vertex:
+                vertex.m_edge_list[k_edge].m_right_vertex.m_edge_list.pop(k_edge)
+            else:
+                vertex.m_edge_list[k_edge].m_left_vertex.m_edge_list.pop(k_edge)
+
+        size = len(vertex.m_edge_list)
+        for i in range(size):
+            temp = vertex.m_edge_list.popitem()
+            self.edge_list.pop(temp[0])
+            self.scene.removeItem(temp[1])
+
         self.vertex_list.pop(vertex.v_number)
+        self.scene.removeItem(vertex)
+
         print("2")
 
-    def delete_edge(self, left_v, right_v):
-        self.del_edge_is_pressed = not self.del_edge_is_pressed
-        self.scene.removeItem(self.vertex_list[left_v])
-        self.vertex_list.pop(left_v)
-        self.scene.removeItem(self.vertex_list[right_v])
-        self.vertex_list.pop(right_v)
-        # self.scene.itemAt()
+    def delete_edge(self, edge):
+        edge.m_right_vertex.m_edge_list.pop(edge.e_number)
+        edge.m_left_vertex.m_edge_list.pop(edge.e_number)
+        self.edge_list.pop(edge.e_number)
+        self.scene.removeItem(edge)
+
 
         print("3")
 

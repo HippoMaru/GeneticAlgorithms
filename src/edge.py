@@ -15,6 +15,9 @@ class Edge(QGraphicsLineItem):
         self.e_number = int(Edge.count)
         self.m_left_vertex = left_vertex
         self.m_right_vertex = right_vertex
+        pen = QPen()
+        pen.setWidth(2)
+        self.setPen(pen)
         self.checked = False
         self.pressed = False
         self.setFlag(QGraphicsItem.ItemIsSelectable, False)
