@@ -6,6 +6,7 @@ from PySide6.QtWidgets import *
 from PySide6.QtGui import *
 import PySide6.Qt3DInput
 from ui.main_window_gui import Ui_MainWindow   # Это наш конвертированный файл дизайна
+#from ui.second_window_gui import Ui_SecondWindow
 from Vertex import Vertex
 from edge import Edge
 import GA_main
@@ -45,6 +46,22 @@ class ExampleApp(QMainWindow, Ui_MainWindow):
         self.del_vertex_btn_is_pressed = False
         self.del_edge_btn_is_pressed = False'''
 
+        self.group_btn = QButtonGroup()
+        self.group_btn.addButton(self.add_vertex_btn, 1)
+        self.group_btn.addButton(self.add_edge_btn, 2)
+        self.group_btn.addButton(self.del_vertex_btn, 3)
+        self.group_btn.addButton(self.del_edge_btn, 4)
+        self.group_btn.addButton(QPushButton(), 5)
+        self.group_btn.setExclusive(True)
+        self.group_btn.button(5).setCheckable(True)
+        self.group_btn.buttonClicked.connect(self.click_btn_off)
+        '''self.add_vertex_btn.clicked.connect(self.click_btn_off_add_vertex)
+        self.add_edge_btn.clicked.connect(self.click_btn_off_add_edge)
+        self.del_vertex_btn.clicked.connect(self.click_btn_off_del_vertex)
+        self.del_edge_btn.clicked.connect(self.click_btn_off_del_edge)'''
+
+        self.now_press_btn = None
+
         # self.add_vertex_btn.clicked.connect(self.create_vertex)
         # self.add_edge_btn.clicked.connect(self.create_edge)
         # self.del_vertex_btn.clicked.connect(self.delete_vertex)
@@ -60,6 +77,14 @@ class ExampleApp(QMainWindow, Ui_MainWindow):
         self.scene.addItem(v1)
         self.scene.addItem(v2)
         self.scene.addItem(line)'''
+
+    def click_btn_off(self):
+        if self.now_press_btn == self.group_btn.checkedButton():
+            self.group_btn.button(5).setChecked(True)
+            self.now_press_btn = None
+        else:
+            self.now_press_btn = self.group_btn.checkedButton()
+            self.group_btn.checkedButton().setChecked(True)
 
     def cood_recalc(self, left_x, left_y, right_x, right_y):
         left_x += 10
@@ -94,8 +119,15 @@ class ExampleApp(QMainWindow, Ui_MainWindow):
             else:
                 right_vertex = self.scene.itemAt(point.x(), point.y(), QTransform())
                 if isinstance(right_vertex, Vertex) and right_vertex != self.left_vertex:
-                    self.create_edge(self.left_vertex, right_vertex)
-                    self.left_vertex = None
+                    dub = False
+                    if right_vertex.m_edge_list != {}:
+                        for edge in right_vertex.m_edge_list.values():
+                            if edge.m_right_vertex == self.left_vertex or edge.m_left_vertex == self.left_vertex:
+                                dub = True
+                                break
+                    if not dub:
+                        self.create_edge(self.left_vertex, right_vertex)
+                        self.left_vertex = None
 
         elif self.del_vertex_btn.isChecked():
             vertex = self.scene.itemAt(point.x(), point.y(), QTransform())
@@ -126,7 +158,7 @@ class ExampleApp(QMainWindow, Ui_MainWindow):
         right_x = right_vertex.sceneBoundingRect().x()
         right_y = right_vertex.sceneBoundingRect().y()
 
-        coord_list = self.cood_recalc(left_x, left_y, right_x, right_y)
+        coord_list = [left_x + 10, left_y + 10, right_x + 10, right_y + 10]
 
         new_edge = Edge(left_vertex, right_vertex, coord_list[0], coord_list[1], coord_list[2], coord_list[3])
 
@@ -188,12 +220,24 @@ class ExampleApp(QMainWindow, Ui_MainWindow):
             brash = vertex.colors[colored_graph[vertex.v_number]]
             vertex.set_color(brash)
 
+        text = str(len(set(colored_graph.values())))
+        self.label.setText("Минимальное еколичество цветов: " + text)
+
+
+'''class MyApp(QMainWindow, Ui_SecondWindow):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setupUi(self)
+'''
+
 
 def main():
     app = QApplication(sys.argv)  # Новый экземпляр QApplication
-    window = ExampleApp()  # Создаём объект класса ExampleApp
-
-    window.show()  # Показываем окно
+    window1 = ExampleApp()  # Создаём объект класса ExampleApp
+    window1.setWindowTitle("Раскраска графа")
+   # window2 = MyApp()
+    #window2.show()
+    window1.show()  # Показываем окно
     app.exec()  # и запускаем приложение
 
 
