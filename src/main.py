@@ -6,8 +6,10 @@ from PySide6.QtWidgets import *
 from PySide6.QtGui import *
 import PySide6.Qt3DInput
 from ui.main_window_gui import Ui_MainWindow   # Это наш конвертированный файл дизайна
+from PySide6 import QtTest
 from Vertex import Vertex
 from edge import Edge
+import GA_main
 
 number_of_vertices = 0
 
@@ -39,10 +41,26 @@ class ExampleApp(QMainWindow, Ui_MainWindow):
 
         self.transform = QTransform
 
-        self.add_vertex_btn_is_pressed = False
+        '''self.add_vertex_btn_is_pressed = False
         self.add_edge_btn_is_pressed = False
         self.del_vertex_btn_is_pressed = False
-        self.del_edge_btn_is_pressed = False
+        self.del_edge_btn_is_pressed = False'''
+
+        self.group_btn = QButtonGroup()
+        self.group_btn.addButton(self.add_vertex_btn, 1)
+        self.group_btn.addButton(self.add_edge_btn, 2)
+        self.group_btn.addButton(self.del_vertex_btn, 3)
+        self.group_btn.addButton(self.del_edge_btn, 4)
+        self.group_btn.addButton(QPushButton(), 5)
+        self.group_btn.setExclusive(True)
+        self.group_btn.button(5).setCheckable(True)
+        self.group_btn.buttonClicked.connect(self.click_btn_off)
+        '''self.add_vertex_btn.clicked.connect(self.click_btn_off_add_vertex)
+        self.add_edge_btn.clicked.connect(self.click_btn_off_add_edge)
+        self.del_vertex_btn.clicked.connect(self.click_btn_off_del_vertex)
+        self.del_edge_btn.clicked.connect(self.click_btn_off_del_edge)'''
+
+        self.now_press_btn = None
 
         # self.add_vertex_btn.clicked.connect(self.create_vertex)
         # self.add_edge_btn.clicked.connect(self.create_edge)
@@ -60,6 +78,14 @@ class ExampleApp(QMainWindow, Ui_MainWindow):
         self.scene.addItem(v2)
         self.scene.addItem(line)'''
 
+    def click_btn_off(self):
+        if self.now_press_btn == self.group_btn.checkedButton():
+            self.group_btn.button(5).setChecked(True)
+            self.now_press_btn = None
+        else:
+            self.now_press_btn = self.group_btn.checkedButton()
+            self.group_btn.checkedButton().setChecked(True)
+
     def cood_recalc(self, left_x, left_y, right_x, right_y):
         left_x += 10
         left_y += 10
@@ -76,7 +102,6 @@ class ExampleApp(QMainWindow, Ui_MainWindow):
         left_y = (right_y + ratio * left_y) / (1 + ratio)
         return [left_x, left_y, right_x, right_y]
 
-
     @Slot(QMouseEvent)
     def on_press(self, event: QMouseEvent):
         point = self.graphicsView.mapToScene(event.pos())
@@ -84,23 +109,25 @@ class ExampleApp(QMainWindow, Ui_MainWindow):
         if self.add_vertex_btn.isChecked():
             self.create_vertex(point.x(), point.y())
 
-        elif self.del_vertex_btn_is_pressed:
-            pass
-
         elif self.add_edge_btn.isChecked():
             if self.left_vertex is None:
                 temp_vertex = self.scene.itemAt(point.x(), point.y(), QTransform())
                 if isinstance(temp_vertex, Vertex):
                     self.left_vertex = temp_vertex
-                    print("!")
                 else:
                     print("Eror")
             else:
                 right_vertex = self.scene.itemAt(point.x(), point.y(), QTransform())
                 if isinstance(right_vertex, Vertex) and right_vertex != self.left_vertex:
-                    self.create_edge(self.left_vertex, right_vertex)
-                    self.left_vertex = None
-                    print("@")
+                    dub = False
+                    if right_vertex.m_edge_list != {}:
+                        for edge in right_vertex.m_edge_list.values():
+                            if edge.m_right_vertex == self.left_vertex or edge.m_left_vertex == self.left_vertex:
+                                dub = True
+                                break
+                    if not dub:
+                        self.create_edge(self.left_vertex, right_vertex)
+                        self.left_vertex = None
 
         elif self.del_vertex_btn.isChecked():
             vertex = self.scene.itemAt(point.x(), point.y(), QTransform())
@@ -126,25 +153,19 @@ class ExampleApp(QMainWindow, Ui_MainWindow):
         self.vertex_list[new_vertex.v_number] = new_vertex
 
     def create_edge(self, left_vertex=None, right_vertex=None):
-
         left_x = left_vertex.sceneBoundingRect().x()
         left_y = left_vertex.sceneBoundingRect().y()
         right_x = right_vertex.sceneBoundingRect().x()
         right_y = right_vertex.sceneBoundingRect().y()
-        '''k = (abc(right_x - left_x))/(abc(right_y - left_y))
-        b = 10
-        x = sqtr(b)'''
-        coord_list = self.cood_recalc(left_x, left_y, right_x, right_y)
+
+        coord_list = [left_x + 10, left_y + 10, right_x + 10, right_y + 10]
 
         new_edge = Edge(left_vertex, right_vertex, coord_list[0], coord_list[1], coord_list[2], coord_list[3])
 
         self.scene.addItem(new_edge)
         self.edge_list[new_edge.e_number] = new_edge
-        print("$")
 
     def delete_vertex(self, vertex):
-        print(vertex.m_edge_list)
-
         for k_edge in vertex.m_edge_list:
             if vertex.m_edge_list[k_edge].m_left_vertex == vertex:
                 vertex.m_edge_list[k_edge].m_right_vertex.m_edge_list.pop(k_edge)
@@ -160,40 +181,83 @@ class ExampleApp(QMainWindow, Ui_MainWindow):
         self.vertex_list.pop(vertex.v_number)
         self.scene.removeItem(vertex)
 
-        print("2")
-
     def delete_edge(self, edge):
         edge.m_right_vertex.m_edge_list.pop(edge.e_number)
         edge.m_left_vertex.m_edge_list.pop(edge.e_number)
         self.edge_list.pop(edge.e_number)
         self.scene.removeItem(edge)
 
+    def conwert_to_matrix(self, v_list, e_list, vert_names_list):
+        n = len(v_list)
+        matrix = [0] * n
+        for x in range(n):
+            matrix[x] = [0] * n
 
-        print("3")
+        for edge in e_list.values():
+            left_num = edge.m_left_vertex.v_number
+            right_num = edge.m_right_vertex.v_number
+            for i in range(n):
+                 if vert_names_list[i] == left_num:
+                    for j in range(n):
+                        if vert_names_list[j] == right_num:
+                            matrix[i][j] = 1
+                            matrix[j][i] = 1
+                            break
+                    break
+        print(matrix)
+        return matrix
 
     def color_the_graph(self):
+        if self.checkBox.isChecked():
+            vert_names_list = []
+            for k_vertex in self.vertex_list:
+                vert_names_list.append(k_vertex)
 
-        pass
+            adjacency_matrix = self.conwert_to_matrix(self.vertex_list, self.edge_list, vert_names_list)
 
+            step = self.spinBox.value()
 
+            list_of_individuals = GA_main.GA_evolution(vert_names_list, adjacency_matrix, step)
 
+            for k in list_of_individuals:
+                color_num = k[0]
+                for coloring in k[1]:
+                    text = "Поколение с количеством цветов: " + f"{color_num}"
+                    self.label.setText(text)
+                    for vertex in self.vertex_list.values():
+                        brash = vertex.colors[coloring[vertex.v_number]]
+                        vertex.set_color(brash)
 
+                    msecs = 2000
+                    QtTest.QTest.qWait(msecs)
+                        # slip 2 sec
+            k = list_of_individuals[len(list_of_individuals) - 1]
+            text = "Минимальное количество цветов: " + f"{k[0]}"
+            self.label.setText(text)
+            print("TEXT")
+
+        else:
+            vert_names_list = []
+            for k_vertex in self.vertex_list:
+                vert_names_list.append(k_vertex)
+
+            adjacency_matrix = self.conwert_to_matrix(self.vertex_list, self.edge_list, vert_names_list)
+
+            colored_graph = GA_main.GA(vert_names_list, adjacency_matrix)
+            print(colored_graph)
+            for vertex in self.vertex_list.values():
+                brash = vertex.colors[colored_graph[vertex.v_number]]
+                vertex.set_color(brash)
+
+            text = "Минимальное количество цветов: " + str(len(set(colored_graph.values())))
+            self.label.setText(text)
 
 
 def main():
-    colors = [QBrush(QColor(0,255,255)), QBrush(QColor(0, 0, 255)), QBrush(QColor(255, 0, 255)),
-            QBrush(QColor(128, 128, 128)), QBrush(QColor(0, 128, 0)), QBrush(QColor(128, 128, 0)),
-              QBrush(QColor(128, 0, 128)), QBrush(QColor(255, 0, 0)), QBrush(QColor(192, 192, 192)),
-              QBrush(QColor(0, 128, 128)), QBrush(QColor(0, 0, 128)), QBrush(QColor(255, 255, 0)),
-              QBrush(QColor(0, 255, 0)), QBrush(QColor(200, 20, 100)), QBrush(QColor(128, 0, 0)), QBrush(QColor(128, 233, 50))]
-    #==============
     app = QApplication(sys.argv)  # Новый экземпляр QApplication
-    window = ExampleApp()  # Создаём объект класса ExampleApp
-    #window.create_vertex()
-    #window.create_vertex()
-    # window.create_edge()
-
-    window.show()  # Показываем окно
+    window1 = ExampleApp()  # Создаём объект класса ExampleApp
+    window1.setWindowTitle("Раскраска графа")
+    window1.show()  # Показываем окно
     app.exec()  # и запускаем приложение
 
 

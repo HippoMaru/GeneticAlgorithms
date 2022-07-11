@@ -3,9 +3,15 @@ from PySide6.QtWidgets import *
 from PySide6.QtGui import *
 from typing import Optional
 
+
 class Vertex(QGraphicsEllipseItem):
     count = 0
     v_point = None
+    colors = [QBrush(QColor(0, 255, 255)), QBrush(QColor(0, 0, 255)), QBrush(QColor(255, 0, 255)),
+              QBrush(QColor(128, 128, 128)), QBrush(QColor(0, 128, 0)), QBrush(QColor(128, 128, 0)),
+              QBrush(QColor(128, 0, 128)), QBrush(QColor(255, 0, 0)), QBrush(QColor(192, 192, 192)),
+              QBrush(QColor(0, 128, 128)), QBrush(QColor(0, 0, 128)), QBrush(QColor(255, 255, 0)),
+              QBrush(QColor(0, 255, 0)), QBrush(QColor(200, 20, 100)), QBrush(QColor(128, 0, 0)), QBrush(QColor(128, 233, 50))]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -62,4 +68,4 @@ class Vertex(QGraphicsEllipseItem):
         print(self.isSelected())'''
 
     def set_color(self, brush):
-        pass
+        self.setBrush(brush)

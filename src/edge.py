@@ -13,6 +13,7 @@ class Edge(QGraphicsLineItem):
         super().__init__(*args, **kwargs)
         Edge.count += 1
         self.e_number = int(Edge.count)
+        self.setZValue(-99)
         self.m_left_vertex = left_vertex
         self.m_right_vertex = right_vertex
         pen = QPen()
