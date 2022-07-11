@@ -26,7 +26,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(656, 434)
+        MainWindow.resize(656, 438)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.horizontalLayout = QHBoxLayout(self.centralwidget)
@@ -45,7 +45,7 @@ class Ui_MainWindow(object):
         self.add_vertex_btn = QPushButton(self.widget_2)
         self.add_vertex_btn.setObjectName(u"add_vertex_btn")
         self.add_vertex_btn.setEnabled(True)
-        self.add_vertex_btn.setMinimumSize(QSize(85, 34))
+        self.add_vertex_btn.setMinimumSize(QSize(85, 38))
         icon = QIcon()
         icon.addFile(u":/ico/img/dobavit_vershinu.png", QSize(), QIcon.Normal, QIcon.Off)
         self.add_vertex_btn.setIcon(icon)
@@ -56,7 +56,7 @@ class Ui_MainWindow(object):
 
         self.add_edge_btn = QPushButton(self.widget_2)
         self.add_edge_btn.setObjectName(u"add_edge_btn")
-        self.add_edge_btn.setMinimumSize(QSize(85, 34))
+        self.add_edge_btn.setMinimumSize(QSize(85, 38))
         icon1 = QIcon()
         icon1.addFile(u":/ico/img/dobavit_rebro.png", QSize(), QIcon.Normal, QIcon.Off)
         self.add_edge_btn.setIcon(icon1)
@@ -67,7 +67,7 @@ class Ui_MainWindow(object):
 
         self.del_vertex_btn = QPushButton(self.widget_2)
         self.del_vertex_btn.setObjectName(u"del_vertex_btn")
-        self.del_vertex_btn.setMinimumSize(QSize(85, 34))
+        self.del_vertex_btn.setMinimumSize(QSize(85, 38))
         icon2 = QIcon()
         icon2.addFile(u":/ico/img/udalit_vershinu.png", QSize(), QIcon.Normal, QIcon.Off)
         self.del_vertex_btn.setIcon(icon2)
@@ -78,7 +78,7 @@ class Ui_MainWindow(object):
 
         self.del_edge_btn = QPushButton(self.widget_2)
         self.del_edge_btn.setObjectName(u"del_edge_btn")
-        self.del_edge_btn.setMinimumSize(QSize(85, 34))
+        self.del_edge_btn.setMinimumSize(QSize(85, 38))
         icon3 = QIcon()
         icon3.addFile(u":/ico/img/udalit_rebro.png", QSize(), QIcon.Normal, QIcon.Off)
         self.del_edge_btn.setIcon(icon3)
@@ -112,6 +112,8 @@ class Ui_MainWindow(object):
         self.spinBox.setObjectName(u"spinBox")
         self.spinBox.setEnabled(False)
         self.spinBox.setFont(font1)
+        self.spinBox.setMinimum(1)
+        self.spinBox.setMaximum(10000)
 
         self.horizontalLayout_2.addWidget(self.spinBox)
 
@@ -193,7 +195,7 @@ class Ui_MainWindow(object):
 #endif // QT_CONFIG(shortcut)
         self.checkBox.setText(QCoreApplication.translate("MainWindow", u"\u042d\u0432\u043e\u043b\u044e\u0446\u0438\u044f", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"\u0428\u0430\u0433", None))
-        self.label.setText(QCoreApplication.translate("MainWindow", u"\u041c\u0438\u043d\u0438\u043c\u0430\u043b\u044c\u043e\u043d\u0435 \u043a\u043e\u043b\u0438\u0447\u0435\u0441\u0442\u0432\u043e \u0446\u0432\u0435\u0442\u043e\u0432: ", None))
+        self.label.setText(QCoreApplication.translate("MainWindow", u"\u041c\u0438\u043d\u0438\u043c\u0430\u043b\u044c\u043d\u043e\u0435 \u043a\u043e\u043b\u0438\u0447\u0435\u0441\u0442\u0432\u043e \u0446\u0432\u0435\u0442\u043e\u0432: ", None))
         self.run_btn.setText(QCoreApplication.translate("MainWindow", u"run", None))
     # retranslateUi
 

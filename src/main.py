@@ -6,7 +6,7 @@ from PySide6.QtWidgets import *
 from PySide6.QtGui import *
 import PySide6.Qt3DInput
 from ui.main_window_gui import Ui_MainWindow   # Это наш конвертированный файл дизайна
-#from ui.second_window_gui import Ui_SecondWindow
+from PySide6 import QtTest
 from Vertex import Vertex
 from edge import Edge
 import GA_main
@@ -208,35 +208,55 @@ class ExampleApp(QMainWindow, Ui_MainWindow):
         return matrix
 
     def color_the_graph(self):
-        vert_names_list = []
-        for k_vertex in self.vertex_list:
-            vert_names_list.append(k_vertex)
+        if self.checkBox.isChecked():
+            vert_names_list = []
+            for k_vertex in self.vertex_list:
+                vert_names_list.append(k_vertex)
 
-        adjacency_matrix = self.conwert_to_matrix(self.vertex_list, self.edge_list, vert_names_list)
+            adjacency_matrix = self.conwert_to_matrix(self.vertex_list, self.edge_list, vert_names_list)
 
-        colored_graph = GA_main.GA(vert_names_list, adjacency_matrix)
-        print(colored_graph)
-        for vertex in self.vertex_list.values():
-            brash = vertex.colors[colored_graph[vertex.v_number]]
-            vertex.set_color(brash)
+            step = self.spinBox.value()
 
-        text = str(len(set(colored_graph.values())))
-        self.label.setText("Минимальное еколичество цветов: " + text)
+            list_of_individuals = GA_main.GA_evolution(vert_names_list, adjacency_matrix, step)
 
+            for k in list_of_individuals:
+                color_num = k[0]
+                for coloring in k[1]:
+                    text = "Поколение с количеством цветов: " + f"{color_num}"
+                    self.label.setText(text)
+                    for vertex in self.vertex_list.values():
+                        brash = vertex.colors[coloring[vertex.v_number]]
+                        vertex.set_color(brash)
 
-'''class MyApp(QMainWindow, Ui_SecondWindow):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.setupUi(self)
-'''
+                    msecs = 2000
+                    QtTest.QTest.qWait(msecs)
+                        # slip 2 sec
+            k = list_of_individuals[len(list_of_individuals) - 1]
+            text = "Минимальное количество цветов: " + f"{k[0]}"
+            self.label.setText(text)
+            print("TEXT")
+
+        else:
+            vert_names_list = []
+            for k_vertex in self.vertex_list:
+                vert_names_list.append(k_vertex)
+
+            adjacency_matrix = self.conwert_to_matrix(self.vertex_list, self.edge_list, vert_names_list)
+
+            colored_graph = GA_main.GA(vert_names_list, adjacency_matrix)
+            print(colored_graph)
+            for vertex in self.vertex_list.values():
+                brash = vertex.colors[colored_graph[vertex.v_number]]
+                vertex.set_color(brash)
+
+            text = "Минимальное количество цветов: " + str(len(set(colored_graph.values())))
+            self.label.setText(text)
 
 
 def main():
     app = QApplication(sys.argv)  # Новый экземпляр QApplication
     window1 = ExampleApp()  # Создаём объект класса ExampleApp
     window1.setWindowTitle("Раскраска графа")
-   # window2 = MyApp()
-    #window2.show()
     window1.show()  # Показываем окно
     app.exec()  # и запускаем приложение
 

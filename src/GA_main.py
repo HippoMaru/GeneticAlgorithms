@@ -152,5 +152,55 @@ def GA(vertexes_list, adjacency_matrix):
     return result_dict
     # print(result_number, '\t\t', result_coloring)
 
+def GA_evolution(vertexes_list, adjacency_matrix, step):
+    result = []
+    n = len(vertexes_list)
+    edges_list = []
+    for i in range(n):
+        for j in range(i+1, n):
+            if adjacency_matrix[i][j] == 1:
+                edges_list.append([i, j])
+    # g1 = Graph()
+    g1 = Graph(n, edges_list)
+    colors_number = g1.vertexes_number
+    result_number = colors_number + 1
+    result_coloring = [i for i in range(g1.vertexes_number)]
+
+    while colors_number >= 1:
+        this_color_result = [colors_number, []]
+        # print(result_number, '\t\t', result_coloring)
+        break_key = True
+        population = create_population(g1.vertexes_number, colors_number)
+        for coloring in population:
+            coloring.calculate_fitness(g1.edges_list)
+        g_counter = 0
+        while g_counter <= MAX_GENERATIONS:
+            population = selection(population, g1.edges_list)
+            population = crossover(population)
+            population = mutation(population, colors_number)
+            if check_generation(population, g1.edges_list):
+                result_number = colors_number
+                result_coloring = get_best_coloring(population, g1.edges_list)
+                result_dict = {}
+                for i in range(n):
+                    result_dict[vertexes_list[i]] = result_coloring[i]
+                this_color_result[1].append(result_dict)
+                result.append(this_color_result)
+                colors_number -= 1
+                break_key = False
+                break
+            else:
+                if g_counter % step == 0:
+                    best_coloring = get_best_coloring(population, g1.edges_list)
+                    result_dict = {}
+                    for i in range(n):
+                        result_dict[vertexes_list[i]] = best_coloring[i]
+                    this_color_result[1].append(result_dict)
+                g_counter += 1
+        if break_key:
+            break
+    return result
+    # print(result_number, '\t\t', result_coloring)
+
 
 # print(GA([2, 4, 8, 6], [[0, 1, 0, 1], [1, 0, 1, 1], [0, 1, 0, 1], [1, 1, 1, 0]]))
