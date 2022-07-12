@@ -24,7 +24,6 @@ class Vertex(QGraphicsEllipseItem):
 
     def mousePressEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         super(Vertex, self).mousePressEvent(event)
-        # self.setSelected(not self.isSelected())
         self.pressed = True
         print(self.isSelected())
         print(self.pos())
@@ -56,16 +55,6 @@ class Vertex(QGraphicsEllipseItem):
             pen.setWidth(50)
             painter.setPen(pen)
         super(Vertex, self).paint(painter, option, widget)
-
-        # def focusInEvent(self, event):
-        # print("+")
-
-        # def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent) -> None:
-
-        '''super(Vertex, self).mouseReleaseEvent(event)
-        self.setSelected(not self.isSelected())
-        self.pressed = False
-        print(self.isSelected())'''
 
     def set_color(self, brush):
         self.setBrush(brush)

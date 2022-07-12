@@ -9,7 +9,6 @@ class GraphicsView(QGraphicsView):
 
     def __init__(self, *args, **kwargs):
         super(GraphicsView, self).__init__(*args, **kwargs)
-        # Graphics view variables
         self.start = None
         self.end = None
         self.box_list = list()
@@ -25,7 +24,6 @@ class GraphicsView(QGraphicsView):
         if self.__zoom > 0:
             self.scale(factor, factor)
         elif self.__zoom == 0:
-            # self.fitInView()
             pass
         else:
             self.__zoom = 0

@@ -50,6 +50,4 @@ class Edge(QGraphicsLineItem):
                                       self.m_right_vertex.sceneBoundingRect().y())
 
         self.setLine(coord_list[0], coord_list[1], coord_list[2], coord_list[3])
-        # self.setPos(QPointF(rect.x(), rect.y()), rect.width(), rect.height())
-        # self.setPos(self.m_left_vertex.sceneBoundingRect().x(), self.m_left_vertex.sceneBoundingRect().y(), self.m_right_vertex.sceneBoundingRect().x(), self.m_right_vertex.sceneBoundingRect().y())
-        print("09098")
+
